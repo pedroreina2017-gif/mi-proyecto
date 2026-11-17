@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario | INVENTEC</title>
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --dark: #172033;
+            --light: #f4f7fb;
+            --border: #e2e8f0;
+            --text: #334155;
+            --danger: #dc2626;
+            --success: #16a34a;
+            --warning: #d97706;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: var(--light);
+            color: var(--text);
+        }
+
+        .navbar {
+            height: 70px;
+            background: var(--dark);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 6%;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .brand img {
+            width: 42px;
+            height: 42px;
+            object-fit: contain;
+        }
+
+        .user-area {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logout {
+            color: white;
+            text-decoration: none;
+            padding: 9px 14px;
+            border: 1px solid #64748b;
+            border-radius: 7px;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1300px;
+            margin: 35px auto;
+        }
+
+        .heading {
+            margin-bottom: 25px;
+        }
+
+        .heading h1 {
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+
+        .heading p {
+            color: #64748b;
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .summary-card {
+            background: white;
+            padding: 22px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 3px 12px #00000008;
+        }
+
+        .summary-card span {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .summary-card strong {
+            display: block;
+            color: var(--dark);
+            font-size: 28px;
+            margin-top: 10px;
+        }
+
+        .toolbar {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px;
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .search {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            font-size: 15px;
+        }
+
+        button {
+            border: 0;
+            cursor: pointer;
+            border-radius: 7px;
+            padding: 11px 17px;
+            font-weight: bold;
+        }
+
+        .add-button {
+            background: var(--primary);
+            color: white;
+        }
+
+        .table-box {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow-x: auto;
+        }
+
+        .table-title {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            color: var(--dark);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 850px;
+        }
+
+        th, td {
+            padding: 16px 20px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+
+        .status {
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .available {
+            color: var(--success);
+            background: #dcfce7;
+        }
+
+        .low {
+            color: var(--warning);
+            background: #fef3c7;
+        }
+
+        .actions button {
+            background: transparent;
+            padding: 6px 9px;
+            font-size: 16px;
+        }
+
+        .edit {
+            color: var(--primary);
+        }
+
+        .delete {
+            color: var(--danger);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: #00000080;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-width: 500px;
+            padding: 25px;
+            border-radius: 12px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .close {
+            background: none;
+            font-size: 24px;
+            padding: 0;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .cancel {
+            background: #e2e8f0;
+            color: var(--text);
+        }
+
+        @media (max-width: 800px) {
+            .summary {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .toolbar {
+                flex-direction: column;
+            }
+
+            .navbar {
+                padding: 0 4%;
+            }
+
+            .user-name {
+                display: none;
+            }
+        }
+
+        @media (max-width: 450px) {
+            .summary {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                width: 94%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="navbar">
+        <div class="brand">
+            <img src="imagen_logo_empresa_inventario-removebg-preview.png" alt="Logo INVENTEC">
+            <span>INVENTEC</span>
+        </div>
+
+        <div class="user-area">
+            <span class="user-name">Administrador</span>
+            <a href="login.html" class="logout">Cerrar sesión</a>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="heading">
+            <h1>Panel de inventario</h1>
+            <p>Administra los productos y controla las existencias.</p>
+        </section>
+
+        <section class="summary">
+            <div class="summary-card">
+                <span>Total de productos</span>
+                <strong id="totalProducts">2</strong>
+            </div>
+
+            <div class="summary-card">
+                <span>Unidades disponibles</span>
+                <strong id="totalUnits">1215</strong>
+            </div>
+
+            <div class="summary-card">
+                <span>Stock bajo</span>
+                <strong id="lowStock">1</strong>
+            </div>
+
+            <div class="summary-card">
+                <span>Categorías</span>
+                <strong id="categories">2</strong>
+            </div>
+        </section>
+
+        <section class="toolbar">
+            <input
+                type="search"
+                id="searchInput"
+                class="search"
+                placeholder="Buscar por nombre, código o categoría..."
+            >
+
+            <button class="add-button" id="openModal">
+                + Agregar producto
+            </button>
+        </section>
+
+        <section class="table-box">
+            <h2 class="table-title">Listado de productos</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Producto</th>
+                        <th>Categoría</th>
+                        <th>Cantidad</th>
+                        <th>Precio</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody id="productTable">
+                    <tr>
+                        <td>#101</td>
+                        <td>Cajas de cartón corrugado</td>
+                        <td>Empaques</td>
+                        <td>1200</td>
+                        <td>$1.500 COP</td>
+                        <td><span class="status available">Disponible</span></td>
+                        <td class="actions">
+                            <button class="edit">Editar</button>
+                            <button class="delete">Eliminar</button>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>#102</td>
+                        <td>Cinta de embalaje industrial</td>
+                        <td>Adhesivos</td>
+                        <td>15</td>
+                        <td>$8.500 COP</td>
+                        <td><span class="status low">Stock bajo</span></td>
+                        <td class="actions">
+                            <button class="edit">Editar</button>
+                            <button class="delete">Eliminar</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Nuevo producto</h2>
+                <button class="close" id="closeModal">&times;</button>
+            </div>
+
+            <form id="productForm">
+                <div class="form-group">
+                    <label for="code">Código</label>
+                    <input type="text" id="code" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="name">Nombre del producto</label>
+                    <input type="text" id="name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="category">Categoría</label>
+                    <input type="text" id="category" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="quantity">Cantidad</label>
+                    <input type="number" id="quantity" min="0" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="price">Precio unitario</label>
+                    <input type="number" id="price" min="0" required>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="cancel" id="cancelModal">Cancelar</button>
+                    <button type="submit" class="add-button">Guardar producto</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const modal = document.getElementById("productModal");
+        const table = document.getElementById("productTable");
+        const form = document.getElementById("productForm");
+        const search = document.getElementById("searchInput");
+
+        document.getElementById("openModal").onclick = () => {
+            modal.classList.add("active");
+        };
+
+        document.getElementById("closeModal").onclick =
+        document.getElementById("cancelModal").onclick = () => {
+            modal.classList.remove("active");
+            form.reset();
+        };
+
+        form.addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const code = document.getElementById("code").value;
+            const name = document.getElementById("name").value;
+            const category = document.getElementById("category").value;
+            const quantity = Number(document.getElementById("quantity").value);
+            const price = Number(document.getElementById("price").value);
+
+            const status = quantity <= 20
+                ? '<span class="status low">Stock bajo</span>'
+                : '<span class="status available">Disponible</span>';
+
+            const row = document.createElement("tr");
+
+            row.innerHTML = `
+                <td>#${code}</td>
+                <td>${name}</td>
+                <td>${category}</td>
+                <td>${quantity}</td>
+                <td>$${price.toLocaleString("es-CO")} COP</td>
+                <td>${status}</td>
+                <td class="actions">
+                    <button class="edit">Editar</button>
+                    <button class="delete">Eliminar</button>
+                </td>
+            `;
+
+            table.appendChild(row);
+            modal.classList.remove("active");
+            form.reset();
+            updateSummary();
+        });
+
+        table.addEventListener("click", function (event) {
+            if (event.target.classList.contains("delete")) {
+                if (confirm("¿Deseas eliminar este producto?")) {
+                    event.target.closest("tr").remove();
+                    updateSummary();
+                }
+            }
+        });
+
+        search.addEventListener("input", function () {
+            const value = search.value.toLowerCase();
+
+            document.querySelectorAll("#productTable tr").forEach(row => {
+                row.style.display = row.textContent.toLowerCase().includes(value)
+                    ? ""
+                    : "none";
+            });
+        });
+
+        function updateSummary() {
+            const rows = [...document.querySelectorAll("#productTable tr")];
+
+            document.getElementById("totalProducts").textContent = rows.length;
+
+            const units = rows.reduce((total, row) => {
+                return total + Number(row.cells[3].textContent);
+            }, 0);
+
+            document.getElementById("totalUnits").textContent = units;
+
+            document.getElementById("lowStock").textContent =
+                rows.filter(row => row.querySelector(".low")).length;
+
+            const categories = new Set(
+                rows.map(row => row.cells[2].textContent)
+            );
+
+            document.getElementById("categories").textContent = categories.size;
+        }
+    </script>
+</body>
+</html>
